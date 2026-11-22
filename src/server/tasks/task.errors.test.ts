@@ -31,4 +31,12 @@ describe("error responses", () => {
       description: ["Description must be 500 characters or fewer."],
     });
   });
+
+  it("answers a missing task with 404, a message and no field errors", async () => {
+    const { status, body } = await post("task.update", { id: "missing", title: "Edited" });
+    expect(status).toBe(404);
+    expect(body.error.json.data.code).toBe("NOT_FOUND");
+    expect(body.error.json.message).toBe("This task no longer exists. It may have been deleted.");
+    expect(body.error.json.data.fieldErrors).toBeNull();
+  });
 });

@@ -32,4 +32,19 @@ export class TaskRepository {
     this.tasks.set(task.id, task);
     return copy(task);
   }
+
+  get(id: string): Task | undefined {
+    const task = this.tasks.get(id);
+    return task && copy(task);
+  }
+
+  /** Replaces the title and description; the id and creation time never change. */
+  update(id: string, input: NewTask): Task | undefined {
+    const current = this.tasks.get(id);
+    if (!current) return undefined;
+    const task: Task = { id, ...input, createdAt: current.createdAt };
+    if (task.description === undefined) delete task.description;
+    this.tasks.set(id, task);
+    return copy(task);
+  }
 }

@@ -24,5 +24,13 @@ export const createTaskInput = z.object({
   description: descriptionSchema,
 });
 
+export const taskIdInput = z.object({
+  id: z.string().min(1, "Task id is required."),
+});
+
+// Editing sends the whole task back: an emptied description removes it.
+export const updateTaskInput = createTaskInput.extend(taskIdInput.shape);
+
 export type CreateTaskInput = z.input<typeof createTaskInput>;
 export type NewTask = z.output<typeof createTaskInput>;
+export type UpdateTaskInput = z.input<typeof updateTaskInput>;
