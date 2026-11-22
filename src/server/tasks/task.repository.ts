@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import type { Task } from "./task";
+import type { NewTask } from "./task.schema";
 
 function copy(task: Task): Task {
   return { ...task, createdAt: new Date(task.createdAt) };
@@ -22,5 +24,12 @@ export class TaskRepository {
 
   list(): Task[] {
     return [...this.tasks.values()].sort(newestFirst).map(copy);
+  }
+
+  create(input: NewTask): Task {
+    const task: Task = { id: randomUUID(), ...input, createdAt: new Date() };
+    if (task.description === undefined) delete task.description;
+    this.tasks.set(task.id, task);
+    return copy(task);
   }
 }
