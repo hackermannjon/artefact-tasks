@@ -3,11 +3,12 @@ import { publicProcedure, router } from "../trpc";
 import type { Task } from "./task";
 import { createTaskInput, taskIdInput, updateTaskInput } from "./task.schema";
 
+function notFound(): never {
+  throw new TRPCError({ code: "NOT_FOUND", message: "This task no longer exists. It may have been deleted." });
+}
+
 function found(task: Task | undefined): Task {
-  if (!task) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "This task no longer exists. It may have been deleted." });
-  }
-  return task;
+  return task ?? notFound();
 }
 
 export const taskRouter = router({
@@ -20,4 +21,9 @@ export const taskRouter = router({
   update: publicProcedure
     .input(updateTaskInput)
     .mutation(({ ctx, input: { id, ...changes } }) => found(ctx.tasks.update(id, changes))),
+
+  delete: publicProcedure.input(taskIdInput).mutation(({ ctx, input }) => {
+    if (!ctx.tasks.delete(input.id)) notFound();
+    return { id: input.id };
+  }),
 });

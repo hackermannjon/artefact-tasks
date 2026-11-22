@@ -47,4 +47,9 @@ export class TaskRepository {
     this.tasks.set(id, task);
     return copy(task);
   }
+
+  /** Returns false when there was nothing to delete. */
+  delete(id: string): boolean {
+    return this.tasks.delete(id);
+  }
 }
