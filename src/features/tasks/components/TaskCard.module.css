@@ -32,6 +32,12 @@
   overflow: hidden;
 }
 
+.actions {
+  display: flex;
+  flex: none;
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0 0;
+}
+
 .meta {
   display: flex;
   align-items: center;

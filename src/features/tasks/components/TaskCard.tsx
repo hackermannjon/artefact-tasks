@@ -1,4 +1,5 @@
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Pencil } from "lucide-react";
+import { IconLink } from "@/components/ui/IconButton";
 import type { TaskItem } from "../hooks/useTaskList";
 import styles from "./TaskCard.module.css";
 
@@ -15,6 +16,11 @@ export function TaskCard({ task }: { task: TaskItem }) {
           <span className="visually-hidden">Created</span>
           <time dateTime={task.createdAtIso}>{task.createdAtLabel}</time>
         </p>
+      </div>
+      <div className={styles.actions}>
+        <IconLink href={`/tasks/${task.id}/edit`} label={`Edit “${task.title}”`}>
+          <Pencil size={18} aria-hidden />
+        </IconLink>
       </div>
     </article>
   );
