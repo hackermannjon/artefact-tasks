@@ -1,11 +1,14 @@
-import page from "@/components/layout/Page.module.css";
+import { TaskListView } from "@/features/tasks/views/TaskListView";
+import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
-export default function HomePage() {
+// The list lives in server memory and changes at runtime, so never prerender it.
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  await getQueryClient().prefetchQuery(trpc.task.list.queryOptions());
   return (
-    <main className={page.main}>
-      <div className={page.heading}>
-        <h1 className={page.title}>Tasks</h1>
-      </div>
-    </main>
+    <HydrateClient>
+      <TaskListView />
+    </HydrateClient>
   );
 }

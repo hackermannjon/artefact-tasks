@@ -20,12 +20,15 @@
   opacity: 0.5;
 }
 
-.neutral:hover:not(:disabled) {
-  background: var(--surface-hover);
-  color: var(--text);
-}
+/* Hover only where there is a pointer, so a tap does not leave a stuck highlight. */
+@media (hover: hover) {
+  .neutral:hover:not(:disabled) {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
 
-.danger:hover:not(:disabled) {
-  background: var(--danger-soft);
-  color: var(--danger);
+  .danger:hover:not(:disabled) {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
 }

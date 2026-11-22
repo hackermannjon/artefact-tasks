@@ -3,6 +3,7 @@ import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { themeScript } from "@/components/theme/themeScript";
+import { TRPCReactProvider } from "@/trpc/react";
 import "@/styles/globals.css";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
@@ -28,8 +29,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        <AppHeader />
-        {children}
+        <TRPCReactProvider>
+          <AppHeader />
+          {children}
+        </TRPCReactProvider>
       </body>
     </html>
   );
