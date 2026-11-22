@@ -1,0 +1,20 @@
+/* Shows the theme you would switch to: the sun in dark mode, the moon in light. */
+.moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .sun {
+    display: none;
+  }
+  :global(:root:not([data-theme="dark"])) .moon {
+    display: block;
+  }
+}
+
+:global(:root[data-theme="light"]) .sun {
+  display: none;
+}
+:global(:root[data-theme="light"]) .moon {
+  display: block;
+}
