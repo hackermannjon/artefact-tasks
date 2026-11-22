@@ -1,6 +1,6 @@
 import { TRPCClientError } from "@trpc/client";
 import { describe, expect, it } from "vitest";
-import { describeSaveError, validateTask } from "./taskFormRules";
+import { describeSaveError, isNotFound, validateTask } from "./taskFormRules";
 
 describe("validateTask", () => {
   it("passes a valid task", () => {
@@ -38,5 +38,17 @@ describe("describeSaveError", () => {
       result: { error: { data: { code: "NOT_FOUND", fieldErrors: null } } } as never,
     });
     expect(describeSaveError(error).message).toBe("Task not found.");
+  });
+});
+
+describe("isNotFound", () => {
+  const answer = (code: string) =>
+    new TRPCClientError("x", { result: { error: { data: { code, fieldErrors: null } } } as never });
+
+  it("is true only for a NOT_FOUND answer from the server", () => {
+    expect(isNotFound(answer("NOT_FOUND"))).toBe(true);
+    expect(isNotFound(answer("BAD_REQUEST"))).toBe(false);
+    expect(isNotFound(new TRPCClientError("Failed to fetch"))).toBe(false);
+    expect(isNotFound(new Error("NOT_FOUND"))).toBe(false);
   });
 });

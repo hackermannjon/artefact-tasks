@@ -31,3 +31,8 @@ export function describeSaveError(error: unknown): SaveFailure {
   }
   return { fieldErrors: {}, message: "Something went wrong. Please try again." };
 }
+
+/** True when the server answered that the task does not exist (any more). */
+export function isNotFound(error: unknown): boolean {
+  return error instanceof TRPCClientError && (error.data as { code?: string } | undefined)?.code === "NOT_FOUND";
+}

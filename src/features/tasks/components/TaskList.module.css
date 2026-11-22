@@ -1,7 +1,36 @@
 .list {
-  display: grid;
-  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/*
+ * Spacing is padding on each item rather than a gap on the list, so a leaving
+ * item can collapse its own space and the cards below slide up smoothly.
+ * Keep the transition length in sync with EXIT_MS in useDeleteTask.
+ */
+.item {
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-bottom: var(--space-3);
+  transition:
+    grid-template-rows 220ms var(--ease-out),
+    padding-bottom 220ms var(--ease-out),
+    opacity 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.inner {
+  min-height: 0;
+}
+
+.leaving {
+  grid-template-rows: 0fr;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.leaving .inner {
+  overflow: hidden;
 }

@@ -1,9 +1,11 @@
-import { CalendarClock, Pencil } from "lucide-react";
-import { IconLink } from "@/components/ui/IconButton";
+import { CalendarClock, Pencil, Trash2 } from "lucide-react";
+import { IconButton, IconLink } from "@/components/ui/IconButton";
 import type { TaskItem } from "../hooks/useTaskList";
 import styles from "./TaskCard.module.css";
 
-export function TaskCard({ task }: { task: TaskItem }) {
+type Props = { task: TaskItem; onDelete: (task: TaskItem) => void };
+
+export function TaskCard({ task, onDelete }: Props) {
   return (
     <article className={styles.card} aria-labelledby={`task-${task.id}`}>
       <div className={styles.body}>
@@ -21,6 +23,9 @@ export function TaskCard({ task }: { task: TaskItem }) {
         <IconLink href={`/tasks/${task.id}/edit`} label={`Edit “${task.title}”`}>
           <Pencil size={18} aria-hidden />
         </IconLink>
+        <IconButton tone="danger" label={`Delete “${task.title}”`} onClick={() => onDelete(task)}>
+          <Trash2 size={18} aria-hidden />
+        </IconButton>
       </div>
     </article>
   );
