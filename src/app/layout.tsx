@@ -3,6 +3,7 @@ import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { themeScript } from "@/components/theme/themeScript";
+import { ToastProvider } from "@/components/ui/toast/ToastProvider";
 import { TRPCReactProvider } from "@/trpc/react";
 import "@/styles/globals.css";
 
@@ -30,8 +31,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <TRPCReactProvider>
-          <AppHeader />
-          {children}
+          <ToastProvider>
+            <AppHeader />
+            {children}
+          </ToastProvider>
         </TRPCReactProvider>
       </body>
     </html>
