@@ -2,17 +2,21 @@
 
 import { ListTodo, Plus } from "lucide-react";
 import page from "@/components/layout/Page.module.css";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ListFooter } from "../components/ListFooter";
 import { TaskList } from "../components/TaskList";
 import { useDeleteTask } from "../hooks/useDeleteTask";
-import { useTaskList } from "../hooks/useTaskList";
+import { useInfiniteTasks } from "../hooks/useInfiniteTasks";
 
 export function TaskListView() {
-  const list = useTaskList();
+  const list = useInfiniteTasks();
   const { tasks, countLabel } = list;
   const deletion = useDeleteTask();
+  // Every loaded task may be deleted while more wait on the server: keep the
+  // list (and its sentinel, which loads them) until there is truly nothing.
+  const empty = tasks.length === 0 && !list.hasMore;
   const newTask = (
     <ButtonLink href="/tasks/new" icon={<Plus size={18} aria-hidden />}>
       New task
@@ -24,19 +28,16 @@ export function TaskListView() {
       <div className={page.heading}>
         <div>
           <h1 className={page.title}>Tasks</h1>
-          <p className={page.subtitle}>{tasks.length > 0 ? `${countLabel} · newest first` : countLabel}</p>
+          <p className={page.subtitle}>{empty ? countLabel : `${countLabel} · newest first`}</p>
         </div>
-        {tasks.length > 0 && newTask}
+        {!empty && newTask}
       </div>
 
-      {tasks.length > 0 ? (
+      {!empty ? (
         <>
           <TaskList tasks={tasks} leaving={deletion.leaving} onDelete={deletion.ask} />
-          {list.hasMore && (
-            <Button variant="secondary" loading={list.loadingMore} onClick={list.loadMore}>
-              {list.loadingMore ? "Loading…" : "Load more"}
-            </Button>
-          )}
+          <div key={list.sentinelKey} ref={list.sentinelRef} aria-hidden />
+          <ListFooter state={list.footer} countLabel={countLabel} onRetry={list.retry} />
         </>
       ) : (
         <EmptyState icon={<ListTodo size={26} />} title="No tasks yet" action={newTask}>
