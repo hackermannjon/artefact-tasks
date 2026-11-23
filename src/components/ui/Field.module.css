@@ -82,7 +82,3 @@ textarea.control {
   font-weight: 600;
 }
 
-.hint {
-  color: var(--text-faint);
-  font-size: var(--text-sm);
-}

@@ -6,9 +6,7 @@ type Props = {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  onBlur?: () => void;
   error?: string;
-  hint?: string;
   optional?: boolean;
   multiline?: boolean;
   max?: number;
@@ -17,8 +15,8 @@ type Props = {
   placeholder?: string;
 };
 
-export function Field({ id, label, value, onChange, onBlur, error, hint, optional, multiline, max, disabled, autoFocus, placeholder }: Props) {
-  const describedBy = [error && `${id}-error`, hint && `${id}-hint`, max && `${id}-count`].filter(Boolean).join(" ");
+export function Field({ id, label, value, onChange, error, optional, multiline, max, disabled, autoFocus, placeholder }: Props) {
+  const describedBy = [error && `${id}-error`, max && `${id}-count`].filter(Boolean).join(" ");
   // Counts what will be saved: the server trims before checking the limit.
   const length = value.trim().length;
   const shared = {
@@ -28,7 +26,6 @@ export function Field({ id, label, value, onChange, onBlur, error, hint, optiona
     disabled,
     autoFocus,
     placeholder,
-    onBlur,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": describedBy || undefined,
     className: [styles.control, error && styles.invalid].filter(Boolean).join(" "),
@@ -53,16 +50,10 @@ export function Field({ id, label, value, onChange, onBlur, error, hint, optiona
         )}
       </div>
       {multiline ? <textarea rows={5} {...shared} /> : <input type="text" autoComplete="off" {...shared} />}
-      {error ? (
+      {error && (
         <p id={`${id}-error`} className={styles.error} role="alert">
           {error}
         </p>
-      ) : (
-        hint && (
-          <p id={`${id}-hint`} className={styles.hint}>
-            {hint}
-          </p>
-        )
       )}
     </div>
   );

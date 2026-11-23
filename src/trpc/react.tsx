@@ -18,8 +18,10 @@ function getQueryClient() {
   return (browserQueryClient ??= makeQueryClient());
 }
 
+// The server-side URL is only a fallback: every page prefetches its data in the
+// server render, so client components do not query during it.
 function apiUrl() {
-  const base = typeof window === "undefined" ? `http://localhost:${process.env.PORT ?? 3300}` : "";
+  const base = typeof window === "undefined" ? `http://localhost:${process.env.PORT ?? 3000}` : "";
   return `${base}/api/trpc`;
 }
 
