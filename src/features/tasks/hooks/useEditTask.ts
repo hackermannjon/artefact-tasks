@@ -12,17 +12,19 @@ export function useEditTask(id: string) {
   const router = useRouter();
   const toast = useToast();
   // Fetched by the server render, so the form opens already filled in.
-  const { data: task } = useSuspenseQuery(trpc.task.byId.queryOptions({ id }));
+  const { data: task, dataUpdatedAt } = useSuspenseQuery(trpc.task.byId.queryOptions({ id }));
   const update = useMutation(trpc.task.update.mutationOptions());
 
   return useTaskForm({
     initial: { title: task.title, description: task.description ?? "" },
+    initialVersion: dataUpdatedAt,
     save: (values) => update.mutateAsync({ id, ...values }),
     onSaved: () => {
       void queryClient.invalidateQueries({ queryKey: trpc.task.list.pathKey() });
       void queryClient.invalidateQueries({ queryKey: trpc.task.byId.queryKey({ id }) });
       toast.show("success", "Task updated.");
-      router.push("/");
+      // Replace, so Back does not reopen a form that was already saved.
+      router.replace("/");
     },
   });
 }

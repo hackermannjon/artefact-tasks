@@ -19,7 +19,8 @@ export function useCreateTask() {
     onSaved: () => {
       void queryClient.invalidateQueries({ queryKey: trpc.task.list.pathKey() });
       toast.show("success", "Task created.");
-      router.push("/");
+      // Replace, so Back does not reopen a form that was already saved.
+      router.replace("/");
     },
   });
 }

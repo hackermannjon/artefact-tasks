@@ -50,9 +50,16 @@ export function TaskForm({ values, errors, formError, busy, submitLabel, busyLab
         placeholder="Add any details that help"
       />
       <div className={styles.actions}>
-        <ButtonLink href="/" variant="secondary" aria-disabled={busy}>
-          Cancel
-        </ButtonLink>
+        {/* A link cannot be disabled: while saving, a disabled button takes its place. */}
+        {busy ? (
+          <Button variant="secondary" disabled>
+            Cancel
+          </Button>
+        ) : (
+          <ButtonLink href="/" variant="secondary">
+            Cancel
+          </ButtonLink>
+        )}
         <Button type="submit" loading={busy}>
           {busy ? busyLabel : submitLabel}
         </Button>

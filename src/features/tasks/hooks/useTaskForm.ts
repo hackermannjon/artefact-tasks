@@ -11,6 +11,11 @@ import {
 
 type Options = {
   initial: TaskFormValues;
+  /**
+   * Changes when `initial` was fetched again (the edit page passes the query's
+   * update time). Until the user types, the form follows the newer values.
+   */
+  initialVersion?: number;
   save: (values: TaskFormValues) => Promise<unknown>;
   onSaved: () => void;
 };
@@ -21,9 +26,16 @@ type Options = {
  * appear on blur alone: the message would push the submit button down while
  * it is being clicked and swallow the click.
  */
-export function useTaskForm({ initial, save, onSaved }: Options) {
+export function useTaskForm({ initial, initialVersion, save, onSaved }: Options) {
   const [values, setValues] = useState(initial);
   const [edited, setEdited] = useState<Partial<Record<TaskFormField, boolean>>>({});
+  const [version, setVersion] = useState(initialVersion);
+  // A cached task can be replaced by the server's copy right after the first
+  // render. Adopt it while nothing was typed, so a save cannot undo a newer edit.
+  if (initialVersion !== version) {
+    setVersion(initialVersion);
+    if (!edited.title && !edited.description) setValues(initial);
+  }
   const [triedSubmit, setTriedSubmit] = useState(false);
   const [serverErrors, setServerErrors] = useState<TaskFormErrors>({});
   const [formError, setFormError] = useState<string>();
