@@ -1,3 +1,4 @@
+import { taskListInput, taskListPaging } from "@/features/tasks/taskListQuery";
 import { TaskListView } from "@/features/tasks/views/TaskListView";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
@@ -5,7 +6,8 @@ import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  await getQueryClient().prefetchQuery(trpc.task.list.queryOptions());
+  // Only the first page is rendered on the server; the rest loads as the user scrolls.
+  await getQueryClient().prefetchInfiniteQuery(trpc.task.list.infiniteQueryOptions(taskListInput, taskListPaging));
   return (
     <HydrateClient>
       <TaskListView />

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Task } from "./task";
+import type { TaskCursor } from "./task.cursor";
 import type { NewTask } from "./task.schema";
 
 function copy(task: Task): Task {
@@ -7,8 +8,9 @@ function copy(task: Task): Task {
 }
 
 // Newest first; the id breaks ties so the order is total and stable.
-function newestFirst(a: Task, b: Task): number {
-  return b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : -1);
+// Returns 0 only for the same task, which is what lets a cursor exclude itself.
+function newestFirst(a: Pick<Task, "createdAt" | "id">, b: Pick<Task, "createdAt" | "id">): number {
+  return b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0);
 }
 
 /**
@@ -24,6 +26,17 @@ export class TaskRepository {
 
   list(): Task[] {
     return [...this.tasks.values()].sort(newestFirst).map(copy);
+  }
+
+  /**
+   * One page in list order, starting right after the cursor. The cursor holds
+   * the last task's own sort values, not a position, so tasks created or
+   * deleted meanwhile never make a page skip or repeat one.
+   */
+  page(limit: number, after?: TaskCursor): { items: Task[]; hasMore: boolean; total: number } {
+    const sorted = [...this.tasks.values()].sort(newestFirst);
+    const rest = after ? sorted.filter((task) => newestFirst(after, task) < 0) : sorted;
+    return { items: rest.slice(0, limit).map(copy), hasMore: rest.length > limit, total: sorted.length };
   }
 
   create(input: NewTask): Task {

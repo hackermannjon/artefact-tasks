@@ -2,7 +2,7 @@
 
 import { ListTodo, Plus } from "lucide-react";
 import page from "@/components/layout/Page.module.css";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TaskList } from "../components/TaskList";
@@ -10,7 +10,8 @@ import { useDeleteTask } from "../hooks/useDeleteTask";
 import { useTaskList } from "../hooks/useTaskList";
 
 export function TaskListView() {
-  const { tasks, countLabel } = useTaskList();
+  const list = useTaskList();
+  const { tasks, countLabel } = list;
   const deletion = useDeleteTask();
   const newTask = (
     <ButtonLink href="/tasks/new" icon={<Plus size={18} aria-hidden />}>
@@ -29,7 +30,14 @@ export function TaskListView() {
       </div>
 
       {tasks.length > 0 ? (
-        <TaskList tasks={tasks} leaving={deletion.leaving} onDelete={deletion.ask} />
+        <>
+          <TaskList tasks={tasks} leaving={deletion.leaving} onDelete={deletion.ask} />
+          {list.hasMore && (
+            <Button variant="secondary" loading={list.loadingMore} onClick={list.loadMore}>
+              {list.loadingMore ? "Loading…" : "Load more"}
+            </Button>
+          )}
+        </>
       ) : (
         <EmptyState icon={<ListTodo size={26} />} title="No tasks yet" action={newTask}>
           Create your first task and it will show up here.

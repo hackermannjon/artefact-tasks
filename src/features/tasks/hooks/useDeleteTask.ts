@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { useTRPC } from "@/trpc/react";
 import { describeSaveError, isNotFound } from "../taskFormRules";
+import { taskListInput } from "../taskListQuery";
+import { removeFromPages } from "../taskPages";
 import type { TaskItem } from "./useTaskList";
 
 // Matches the card's exit transition in TaskList.module.css.
@@ -26,7 +28,7 @@ export function useDeleteTask() {
   function dropCard(id: string) {
     setLeaving((ids) => new Set(ids).add(id));
     setTimeout(() => {
-      queryClient.setQueryData(trpc.task.list.queryKey(), (tasks) => tasks?.filter((t) => t.id !== id));
+      queryClient.setQueryData(trpc.task.list.infiniteQueryKey(taskListInput), (data) => removeFromPages(data, id));
       setLeaving((ids) => {
         const next = new Set(ids);
         next.delete(id);

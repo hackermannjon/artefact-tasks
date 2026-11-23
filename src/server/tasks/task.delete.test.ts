@@ -26,7 +26,7 @@ describe("task.delete", () => {
   it("removes the task from the list and from byId", async () => {
     const caller = fresh();
     expect(await caller.task.delete({ id: "a" })).toEqual({ id: "a" });
-    expect((await caller.task.list()).map((t) => t.id)).toEqual(["b"]);
+    expect((await caller.task.list({ limit: 50 })).items.map((t) => t.id)).toEqual(["b"]);
     expect((await rejection(caller.task.byId({ id: "a" }))).code).toBe("NOT_FOUND");
   });
 
@@ -35,7 +35,7 @@ describe("task.delete", () => {
     const error = await rejection(caller.task.delete({ id: "missing" }));
     expect(error.code).toBe("NOT_FOUND");
     expect(error.message).toBe("This task no longer exists. It may have been deleted.");
-    expect(await caller.task.list()).toHaveLength(2);
+    expect((await caller.task.list({ limit: 50 })).items).toHaveLength(2);
   });
 
   it("answers NOT_FOUND the second time the same task is deleted", async () => {
@@ -52,6 +52,6 @@ describe("task.delete", () => {
     const caller = fresh();
     await caller.task.delete({ id: "a" });
     await caller.task.delete({ id: "b" });
-    expect(await caller.task.list()).toEqual([]);
+    expect((await caller.task.list({ limit: 50 })).items).toEqual([]);
   });
 });

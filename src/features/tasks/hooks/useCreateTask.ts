@@ -17,7 +17,7 @@ export function useCreateTask() {
     initial: { title: "", description: "" },
     save: (values) => create.mutateAsync(values),
     onSaved: () => {
-      void queryClient.invalidateQueries({ queryKey: trpc.task.list.queryKey() });
+      void queryClient.invalidateQueries({ queryKey: trpc.task.list.pathKey() });
       toast.show("success", "Task created.");
       router.push("/");
     },

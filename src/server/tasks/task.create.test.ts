@@ -35,7 +35,7 @@ describe("task.create", () => {
       description: "For the Monday sync",
       createdAt: new Date("2026-11-23T15:00:00Z"),
     });
-    expect((await caller.task.list()).map((t) => t.id)).toEqual([task.id, "old"]);
+    expect((await caller.task.list({ limit: 50 })).items.map((t) => t.id)).toEqual([task.id, "old"]);
   });
 
   it("gives every task its own id", async () => {
@@ -67,7 +67,7 @@ describe("task.create", () => {
   it("refuses a title made only of spaces, and stores nothing", async () => {
     const caller = fresh();
     await rejection(caller.task.create({ title: "   \t " }));
-    expect(await caller.task.list()).toEqual([]);
+    expect((await caller.task.list({ limit: 50 })).items).toEqual([]);
   });
 
   it(`accepts a title of exactly ${TITLE_MAX} characters and refuses ${TITLE_MAX + 1}`, async () => {

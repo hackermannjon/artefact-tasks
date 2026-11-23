@@ -31,6 +31,14 @@ export const taskIdInput = z.object({
 // Editing sends the whole task back: an emptied description removes it.
 export const updateTaskInput = createTaskInput.extend(taskIdInput.shape);
 
+export const PAGE_SIZE_MAX = 50;
+
+export const listTasksInput = z.object({
+  limit: z.number().int().min(1).max(PAGE_SIZE_MAX).default(10),
+  // Sent back as received from the previous page; null or absent means the first page.
+  cursor: z.string().nullish(),
+});
+
 export type CreateTaskInput = z.input<typeof createTaskInput>;
 export type NewTask = z.output<typeof createTaskInput>;
 export type UpdateTaskInput = z.input<typeof updateTaskInput>;

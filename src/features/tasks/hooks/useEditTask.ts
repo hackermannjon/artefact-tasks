@@ -19,7 +19,7 @@ export function useEditTask(id: string) {
     initial: { title: task.title, description: task.description ?? "" },
     save: (values) => update.mutateAsync({ id, ...values }),
     onSaved: () => {
-      void queryClient.invalidateQueries({ queryKey: trpc.task.list.queryKey() });
+      void queryClient.invalidateQueries({ queryKey: trpc.task.list.pathKey() });
       void queryClient.invalidateQueries({ queryKey: trpc.task.byId.queryKey({ id }) });
       toast.show("success", "Task updated.");
       router.push("/");

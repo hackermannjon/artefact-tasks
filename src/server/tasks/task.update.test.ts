@@ -51,7 +51,7 @@ describe("task.update", () => {
   it("keeps the task in the same place in the list", async () => {
     const caller = fresh();
     await caller.task.update({ id: "a", title: "Edited" });
-    expect((await caller.task.list()).map((t) => t.id)).toEqual(["b", "a"]);
+    expect((await caller.task.list({ limit: 50 })).items.map((t) => t.id)).toEqual(["b", "a"]);
   });
 
   it("removes the description when it is emptied", async () => {
@@ -67,7 +67,7 @@ describe("task.update", () => {
     const error = await rejection(caller.task.update({ id: "missing", title: "T" }));
     expect(error.code).toBe("NOT_FOUND");
     expect(error.message).toBe("This task no longer exists. It may have been deleted.");
-    expect(await caller.task.list()).toHaveLength(2);
+    expect((await caller.task.list({ limit: 50 })).items).toHaveLength(2);
   });
 
   it("refuses a blank title, and leaves the task as it was", async () => {
