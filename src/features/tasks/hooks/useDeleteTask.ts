@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { useTRPC } from "@/trpc/react";
 import { describeSaveError, isNotFound } from "../taskFormRules";
@@ -24,11 +24,19 @@ export function useDeleteTask() {
   const remove = useMutation(trpc.task.delete.mutationOptions());
   const [target, setTarget] = useState<TaskItem | null>(null);
   const [leaving, setLeaving] = useState<ReadonlySet<string>>(new Set());
+  // Where keyboard focus goes once the card is gone: the dialog would hand it
+  // back to the card's delete button, which is already inert.
+  const focusAfterRef = useRef<HTMLHeadingElement>(null);
 
   function dropCard(id: string) {
     setLeaving((ids) => new Set(ids).add(id));
-    setTimeout(() => {
-      queryClient.setQueryData(trpc.task.list.infiniteQueryKey(taskListInput), (data) => removeFromPages(data, id));
+    setTimeout(async () => {
+      const listKey = trpc.task.list.infiniteQueryKey(taskListInput);
+      // A page fetch already under way was built from the pages as they were
+      // and would bring the card back when it lands. Stop it first; the
+      // sentinel asks again for anything still missing.
+      await queryClient.cancelQueries({ queryKey: listKey });
+      queryClient.setQueryData(listKey, (data) => removeFromPages(data, id));
       setLeaving((ids) => {
         const next = new Set(ids);
         next.delete(id);
@@ -40,17 +48,20 @@ export function useDeleteTask() {
   async function confirm() {
     if (!target || remove.isPending) return;
     const task = target;
+    let gone = false;
     try {
       await remove.mutateAsync({ id: task.id });
       toast.show("success", "Task deleted.");
-      dropCard(task.id);
+      gone = true;
     } catch (error) {
       toast.show("error", describeSaveError(error).message ?? "Could not delete the task. Please try again.");
       // Already gone on the server: the card should not stay on screen either.
-      if (isNotFound(error)) dropCard(task.id);
-    } finally {
-      setTarget(null);
+      gone = isNotFound(error);
     }
+    if (gone) dropCard(task.id);
+    setTarget(null);
+    // After the dialog has closed and returned focus to the (inert) button.
+    if (gone) requestAnimationFrame(() => focusAfterRef.current?.focus());
   }
 
   return {
@@ -62,5 +73,6 @@ export function useDeleteTask() {
     confirm,
     deleting: remove.isPending,
     leaving,
+    focusAfterRef,
   };
 }

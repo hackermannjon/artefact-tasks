@@ -9,10 +9,12 @@ import { useTaskList } from "./useTaskList";
  * last card. When it comes within 300px of the screen, the next page loads, so
  * it is usually there before the user reaches the end.
  *
- * The sentinel is remounted after every page (sentinelKey), so its observer
- * looks again: on a tall screen where it is still visible, the next page loads
- * too, and otherwise nothing happens until the user scrolls. After a failure
- * nothing retries on its own; "Try again" does.
+ * The observer only reports changes, and a load is skipped while any fetch of
+ * the list runs (a refetch after a save, say). So the sentinel is remounted
+ * after every page and whenever a fetch settles (sentinelKey): its observer
+ * looks again, and if it is still on screen the next page loads; otherwise
+ * nothing happens until the user scrolls. After a failure nothing retries on
+ * its own; "Try again" does.
  */
 export function useInfiniteTasks() {
   const list = useTaskList();
@@ -30,5 +32,5 @@ export function useInfiniteTasks() {
         ? "end"
         : null;
 
-  return { ...list, sentinelRef, sentinelKey: list.pageCount, footer, retry: loadMore };
+  return { ...list, sentinelRef, sentinelKey: `${list.pageCount}-${list.fetching ? "fetching" : "idle"}`, footer, retry: loadMore };
 }

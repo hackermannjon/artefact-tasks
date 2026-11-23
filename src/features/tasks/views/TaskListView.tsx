@@ -27,7 +27,9 @@ export function TaskListView() {
     <main className={page.main}>
       <div className={page.heading}>
         <div>
-          <h1 className={page.title}>Tasks</h1>
+          <h1 ref={deletion.focusAfterRef} tabIndex={-1} className={page.title}>
+            Tasks
+          </h1>
           <p className={page.subtitle}>{empty ? countLabel : `${countLabel} · newest first`}</p>
         </div>
         {!empty && newTask}

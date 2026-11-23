@@ -19,6 +19,11 @@
   line-height: 1.15;
 }
 
+/* Receives focus from code (after a delete) only to keep the keyboard's place; it is not a control. */
+.title:focus {
+  outline: none;
+}
+
 .subtitle {
   margin-top: var(--space-1);
   color: var(--text-muted);

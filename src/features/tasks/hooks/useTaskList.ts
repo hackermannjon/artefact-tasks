@@ -43,6 +43,7 @@ export function useTaskList() {
     countLabel: total === 1 ? "1 task" : `${total} tasks`,
     pageCount: query.data.pages.length,
     hasMore: query.hasNextPage,
+    fetching: isFetching,
     loadingMore: query.isFetchingNextPage,
     loadMoreFailed: query.isFetchNextPageError,
     loadMore,

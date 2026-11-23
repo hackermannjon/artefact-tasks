@@ -41,6 +41,13 @@ export function ConfirmDialog({ open, title, children, confirmLabel, busyLabel, 
         event.preventDefault();
         if (!busy) onCancel();
       }}
+      onClose={() => {
+        // Chrome closes a modal on a second quick Escape even when the first was
+        // refused. Keep the dialog in step with the state that drives it.
+        if (!open) return;
+        if (busy) ref.current?.showModal();
+        else onCancel();
+      }}
       onClick={(event) => {
         // A click on the backdrop lands on the dialog element itself.
         if (event.target === event.currentTarget && !busy) onCancel();
