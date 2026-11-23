@@ -1,0 +1,13 @@
+# One Render web service: the pages and the tRPC API ship together.
+# Tasks are kept in memory, so this must stay a single instance.
+services:
+  - type: web
+    name: artefact-tasks
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
