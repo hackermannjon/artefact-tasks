@@ -25,6 +25,8 @@ npm run dev        # http://localhost:3300
 
 The app starts with 24 fictional tasks so the list and its infinite scroll have something to show.
 
+To open the dev server from another device on your network, list its address in `DEV_ORIGINS` (comma-separated), e.g. `DEV_ORIGINS=192.168.1.20 npm run dev -- -H 0.0.0.0`.
+
 ## What it does
 
 - **List (server-rendered).** `/` renders the first page of tasks on the server, newest first. Further pages load as the end of the list comes into view.
@@ -52,12 +54,12 @@ One tRPC router, `task`, served at `/api/trpc`. Inputs are validated with zod, a
 | Procedure | Type | Input | Returns | Errors |
 | --- | --- | --- | --- | --- |
 | `task.list` | query | `{ limit?: 1–50 (default 10), cursor?: string \| null }` | `{ items, total, nextCursor }` | `BAD_REQUEST` for an invalid cursor or limit |
-| `task.byId` | query | `{ id }` | the task | `NOT_FOUND` |
+| `task.byId` | query | `{ id }` | the task | `NOT_FOUND`, `BAD_REQUEST` for an empty id |
 | `task.create` | mutation | `{ title, description? }` | the new task | `BAD_REQUEST` with `fieldErrors` |
 | `task.update` | mutation | `{ id, title, description? }` | the updated task | `NOT_FOUND`, `BAD_REQUEST` with `fieldErrors` |
-| `task.delete` | mutation | `{ id }` | `{ id }` | `NOT_FOUND` |
+| `task.delete` | mutation | `{ id }` | `{ id }` | `NOT_FOUND`, `BAD_REQUEST` for an empty id |
 
-Validation errors carry a `fieldErrors` object (one message per field), so the form can show each message next to its field. A missing task always answers `NOT_FOUND` with the message *"This task no longer exists. It may have been deleted."*
+Validation errors carry a `fieldErrors` object (one message per field), so the form can show each message next to its field. Their `message` is the first problem in words, for callers of the API. A missing task always answers `NOT_FOUND` with the message *"This task no longer exists. It may have been deleted."*
 
 **Pagination** uses a keyset cursor (creation time + id) rather than an offset. Creating or deleting tasks while someone scrolls does not skip or repeat items.
 
@@ -69,10 +71,12 @@ src/
   server/              tRPC setup, router, schemas, in-memory repository, seed
   trpc/                Client and server tRPC bindings (React Query)
   features/tasks/
-    hooks/             All client logic: queries, mutations, form state
+    hooks/             Client state: queries, mutations, form state
     components/        Presentational pieces that receive props
     views/             Pages assembled from hooks and components (JSX only)
+    *.ts               Plain helpers: form rules, page merging, list query input
   components/          Shared UI kit, layout and theme
+  lib/                 Dates and small browser hooks (time zone, visibility)
   styles/              Design tokens (colour, spacing, type) and globals
 ```
 
@@ -82,9 +86,9 @@ Server components call the router in-process, with no HTTP round trip to the app
 
 ## Tests
 
-`npm test` runs 56 tests:
+`npm test` runs 57 tests:
 
-- **API** (through a tRPC caller): create, read, update, delete, validation messages and limits on both sides, `NOT_FOUND`, and pagination. The pagination tests walk every task exactly once, add and delete tasks between pages, and reject invalid cursors.
+- **API**: create, read, update, delete, validation messages and limits on both sides, `NOT_FOUND`, and pagination. Most go through a tRPC caller; the error tests go through the real HTTP handler to check status codes. The pagination tests walk every task exactly once, add and delete tasks between pages, and reject invalid cursors.
 - **Client helpers**: form rules, page merging and removal, and date formatting.
 
 ## Deploy
