@@ -8,10 +8,13 @@ export function encodeCursor(task: Pick<Task, "createdAt" | "id">): string {
   return Buffer.from(`${task.createdAt.getTime()}:${task.id}`).toString("base64url");
 }
 
-/** Returns null for anything this server did not produce. */
+/** Returns null for anything that is not a time and an id in the cursor's shape. */
 export function decodeCursor(cursor: string): TaskCursor | null {
   const text = Buffer.from(cursor, "base64url").toString();
   const match = /^(\d+):(.+)$/.exec(text);
   if (!match) return null;
-  return { createdAt: new Date(Number(match[1])), id: match[2]! };
+  const createdAt = new Date(Number(match[1]));
+  // A number too large for a date would sort as NaN and return an arbitrary page.
+  if (Number.isNaN(createdAt.getTime())) return null;
+  return { createdAt, id: match[2]! };
 }

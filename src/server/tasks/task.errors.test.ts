@@ -26,6 +26,7 @@ describe("error responses", () => {
     const { status, body } = await post("task.create", { title: "  ", description: "d".repeat(501) });
     expect(status).toBe(400);
     expect(body.error.json.data.code).toBe("BAD_REQUEST");
+    expect(body.error.json.message).toBe("Title is required.");
     expect(body.error.json.data.fieldErrors).toEqual({
       title: ["Title is required."],
       description: ["Description must be 500 characters or fewer."],

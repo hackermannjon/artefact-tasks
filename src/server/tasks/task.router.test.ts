@@ -124,6 +124,14 @@ describe("task.list pages", () => {
     expect(error).toMatchObject({ code: "BAD_REQUEST", message: "This page link is not valid." });
   });
 
+  it("refuses a cursor whose time is not a real date", async () => {
+    const cursor = Buffer.from("99999999999999999:t1").toString("base64url");
+    const error = await callerWith(many(3))
+      .task.list({ cursor })
+      .catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: "BAD_REQUEST", message: "This page link is not valid." });
+  });
+
   it("treats a null cursor as the first page", async () => {
     const caller = callerWith(many(3));
     expect(await caller.task.list({ cursor: null })).toEqual(await caller.task.list({}));
